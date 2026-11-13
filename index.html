@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dexifra</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="title-row">
+        <h1>desXIFRA</h1>
+        <div class="header-actions">
+          <button id="btn-help" class="icon-btn" type="button" aria-label="Com es juga">?</button>
+        </div>
+      </div>
+
+      <div class="modes" role="tablist" aria-label="Mode de joc">
+        <button id="tab-daily" class="tab" type="button" role="tab">Repte diari</button>
+        <button id="tab-random" class="tab" type="button" role="tab">Repte aleatori</button>
+        <button id="btn-new" class="tab tab-new" type="button" hidden>Nou</button>
+      </div>
+
+      <div class="selector-row">
+        <span class="selector-label">Curs</span>
+        <div class="ages" role="group" aria-label="Curs de primària">
+          <button class="age-btn" type="button" data-age="1">1r <small>fins a 20</small></button>
+          <button class="age-btn" type="button" data-age="2">2n <small>fins a 100</small></button>
+          <button class="age-btn" type="button" data-age="3">3r <small>fins a 500</small></button>
+          <button class="age-btn" type="button" data-age="4">4t <small>fins a 1000</small></button>
+        </div>
+      </div>
+
+      <div class="selector-row">
+        <span class="selector-label">Nivell</span>
+        <div class="levels" role="group" aria-label="Nivell de dificultat">
+          <button class="level-btn" type="button" data-level="easy">Fàcil <small>+</small></button>
+          <button class="level-btn" type="button" data-level="medium">Mig <small>+ − ×</small></button>
+          <button class="level-btn" type="button" data-level="hard">Difícil <small>+ − × ÷</small></button>
+        </div>
+      </div>
+
+      <div class="progress" aria-label="Progrés">
+        <div class="progress-info">
+          <span id="rank-name" class="rank-name">Principiant</span>
+          <span id="score" class="score">0 punts</span>
+        </div>
+        <div class="progress-track">
+          <div id="progress-fill" class="progress-fill"></div>
+          <div id="progress-marks" class="progress-marks"></div>
+        </div>
+        <div id="next-rank" class="next-rank"></div>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="target-zone" aria-label="Número objectiu">
+        <div class="target-label">Objectiu</div>
+        <div id="target" class="target">—</div>
+      </section>
+
+      <section class="display" aria-label="Operació actual">
+        <div id="expression" class="expression" aria-live="polite"></div>
+        <div id="preview" class="preview"></div>
+      </section>
+
+      <section class="keypad" aria-label="Teclat">
+        <div id="numbers" class="numbers"></div>
+        <div id="operators" class="operators">
+          <button class="op-btn" type="button" data-op="+" aria-label="Suma">+</button>
+          <button class="op-btn" type="button" data-op="-" aria-label="Resta">−</button>
+          <button class="op-btn" type="button" data-op="×" aria-label="Multiplicació">×</button>
+          <button class="op-btn" type="button" data-op="÷" aria-label="Divisió">÷</button>
+        </div>
+        <div class="actions">
+          <button id="btn-delete" class="action-btn" type="button">Esborrar</button>
+          <button id="btn-clear" class="action-btn" type="button">Netejar</button>
+          <button id="btn-submit" class="action-btn primary" type="button">Enviar</button>
+        </div>
+      </section>
+
+      <section class="solutions" aria-label="Solucions trobades">
+        <details id="solutions-panel" open>
+          <summary>
+            <span>Solucions trobades: <strong id="found-count">0</strong> / <strong id="total-count">?</strong> <span id="extra-count" class="extra-count"></span></span>
+          </summary>
+          <div class="sort">
+            <button id="sort-time" class="sort-btn active" type="button">Cronològic</button>
+            <button id="sort-points" class="sort-btn" type="button">Per punts</button>
+          </div>
+          <ul id="solutions-list" class="solutions-list"></ul>
+          <p id="solutions-empty" class="solutions-empty">Encara no has trobat cap solució.</p>
+        </details>
+        <div class="reveal">
+          <button id="btn-reveal" class="action-btn" type="button">Veure solucions</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toasts" class="toasts" aria-live="assertive"></div>
+  <div id="loading" class="loading" hidden>Generant repte…</div>
+
+  <dialog id="all-dialog" class="dialog">
+    <h2>Totes les solucions</h2>
+    <p id="all-summary"></p>
+    <ul id="all-list" class="solutions-list all-list"></ul>
+    <form method="dialog"><button class="action-btn primary" type="submit">Tancar</button></form>
+  </dialog>
+
+  <dialog id="help-dialog" class="dialog">
+    <h2>Com es juga</h2>
+    <p>Combina els números disponibles amb els operadors per arribar al <strong>número objectiu</strong>. Com més solucions diferents trobis, més pujaràs de rang.</p>
+    <ul>
+      <li>Pots repetir els números tantes vegades com vulguis.</li>
+      <li>Es respecta la jerarquia matemàtica: primer <strong>×</strong> i <strong>÷</strong>, després <strong>+</strong> i <strong>−</strong>. No hi ha parèntesis. <em>Exemple: 2 + 3 × 4 = 14.</em></li>
+      <li>Cada divisió ha de ser exacta, sense decimals.</li>
+      <li><strong>Anti-cancel·lació:</strong> no es pot fer una operació i la seva inversa amb el mateix número (<em>+5 i −5</em>, <em>×2 i ÷2</em>). El primer número també compta: <em>5 + 3 − 5</em> no és vàlid. <em>+5 i −3</em> sí que ho és.</li>
+      <li>L'ordre no importa: <em>10 + 6</em> i <em>6 + 10</em> són la mateixa solució i només compta una vegada (igual amb la multiplicació).</li>
+    </ul>
+    <p><strong>Curs:</strong> 1r arriba fins a 20, 2n fins a 100, 3r fins a 500 i 4t fins a 1000. <strong>Nivell:</strong> Fàcil (només sumes), Mig (sumes, restes i multiplicacions) i Difícil (també divisions). Cada combinació té el seu propi repte i progrés.</p>
+    <p><strong>Punts per operador:</strong> + 1 · − 2 · × 3 · ÷ 5.</p>
+    <p><strong>Teclat:</strong> números, <kbd>+</kbd> <kbd>-</kbd> <kbd>*</kbd> <kbd>/</kbd>, <kbd>Retrocés</kbd> per esborrar, <kbd>Esc</kbd> per netejar i <kbd>Intro</kbd> per enviar.</p>
+    <form method="dialog"><button class="action-btn primary" type="submit">Entesos</button></form>
+  </dialog>
+
+  <script src="js/validator.js"></script>
+  <script src="js/generator.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
